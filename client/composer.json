@@ -1,0 +1,13 @@
+{
+    "name": "node-php-on-unix-socket/client",
+    "authors": [
+        {
+            "name": "Piotr Srebniak",
+            "email": "piotr.srebniak@gmail.com"
+        }
+    ],
+    "require": {
+        "clue/socket-raw": "~1.2",
+        "guzzlehttp/guzzle": "~6.0"
+    }
+}

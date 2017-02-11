@@ -3,8 +3,9 @@
 namespace UnixSocketHandler;
 
 /**
- * Class Socket
+ * Class Socket simple socket wrapper
  * @package UnixSocketHandler
+ *
  * @internal
  */
 class Socket
@@ -83,10 +84,6 @@ class Socket
         if (false === socket_connect($this->socket, $path)) {
             throw new SocketException("Cannot connect socket to {$path}");
         }
-//        if (false === socket_set_nonblock($this->socket)) {
-//            $this->close();
-//            throw new SocketException("Cannot set socket as non blocking");
-//        }
 
         return $this;
     }
@@ -223,8 +220,6 @@ class Socket
      *
      * @return string
      * @throws SocketException
-     *
-     * @internal
      */
     protected function readChunk($type, $length)
     {

@@ -2,7 +2,6 @@
 
 namespace UnixSocketHandler;
 
-use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Response;
 use HttpResponseException;
 use Psr\Http\Message\RequestInterface;
@@ -17,13 +16,31 @@ class UnixSocketHandler
     /**
      * https://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.2
      */
-    const EOF = "\r\n";
+    const EOL = "\r\n";
 
+    /**
+     * guzzle debug flag
+     */
     const DEBUG = 'debug';
 
+    /**
+     * @var string $path socket path
+     */
     protected $path;
+
+    /**
+     * @var int $domain socket_create $domain parameter
+     */
     protected $domain;
+
+    /**
+     * @var int socket_create $type parameter
+     */
     protected $type;
+
+    /**
+     * @var int socket_create $protocol parameter
+     */
     protected $protocol;
 
     /**
@@ -41,9 +58,14 @@ class UnixSocketHandler
     }
 
     /**
+     * Handle connection
+     *
      * @param RequestInterface $request
      * @param array $options
      * @return \GuzzleHttp\Promise\FulfilledPromise
+     *
+     * @throws HttpResponseException
+     * @throws SocketException
      */
     public function handle($request, $options)
     {
@@ -55,7 +77,7 @@ class UnixSocketHandler
         $socket->connect($this->path);
 
         $socket->write(
-            "{$request->getMethod()} {$request->getRequestTarget()} HTTP/{$request->getProtocolVersion()}" . self::EOF
+            "{$request->getMethod()} {$request->getRequestTarget()} HTTP/{$request->getProtocolVersion()}" . self::EOL
         );
 
         $headers = $request->getHeaders();
@@ -64,35 +86,41 @@ class UnixSocketHandler
 
         foreach ($headers as $key => $values) {
             $value = implode(', ', $values);
-            $socket->write("{$key}: {$value}" . self::EOF);
+            $socket->write("{$key}: {$value}" . self::EOL);
         }
 
         $contentLength = strlen($request->getBody());
         if ($contentLength > 0) {
-            $socket->write("Content-Length: {$contentLength}" . self::EOF);
+            $socket->write("Content-Length: {$contentLength}" . self::EOL);
         }
 
         $socket
-            ->write(self::EOF)
+            ->write(self::EOL)
             ->write($request->getBody())
-            ->write(self::EOF)
+            ->write(self::EOL)
             ->send();
 
         $response = $socket->readAll();
         $socket->close();
 
-        $responseObject = $this->createResponse($response);
-        return new FulfilledPromise($responseObject);
+        return $this->createResponse($response);
     }
 
+    /**
+     * @param $data
+     * @return Response
+     * @throws HttpResponseException
+     */
     protected function createResponse($data)
     {
-        $parts = explode(self::EOF.self::EOF, $data, 2);
+        $parts = explode(self::EOL.self::EOL, $data, 2);
         if (count($parts) !== 2) {
             throw new HttpResponseException("Cannot create response from data");
         }
         list($headers, $body) = $parts;
-        $headers = explode(self::EOF, $headers);
+        $headers = explode(self::EOL, $headers);
+
+        /// guzzle EasyHandle copy
 
         $startLine = explode(' ', array_shift($headers), 3);
         $headers = \GuzzleHttp\headers_from_lines($headers);

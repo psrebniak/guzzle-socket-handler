@@ -1,6 +1,8 @@
 <?php
 
 namespace UnixSocketHandler;
+
+use GuzzleHttp\Promise\FulfilledPromise;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -33,11 +35,12 @@ class UnixSocketHandlerFactory
             usleep($options['delay'] * 1000);
         }
 
-        return (new UnixSocketHandler(
+        $response = (new UnixSocketHandler(
             $this->path,
             $this->domain,
             $this->type,
             $this->protocol
         ))->handle($request, $options);
+        return new FulfilledPromise($response);
     }
 }

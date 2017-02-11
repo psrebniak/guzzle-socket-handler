@@ -2,10 +2,13 @@
 
 namespace UnixSocketHandler;
 
+/**
+ * Class Socket
+ * @package UnixSocketHandler
+ * @internal
+ */
 class Socket
 {
-    const EOL = "\r\n";
-
     protected $socket = null;
     protected $path = null;
 
@@ -143,11 +146,31 @@ class Socket
      * Read from socket
      *
      * @param int $type socket_read $type parameter
+     * @param int $length socket_read $length parameter
      *
      * @return string
      * @throws SocketException
      */
-    public function read($type = PHP_BINARY_READ)
+    public function read($type = PHP_BINARY_READ, $length = 65384)
+    {
+        if ($this->debug) {
+            echo __METHOD__ . PHP_EOL;
+        }
+        if (!isset($this->socket)) {
+            throw new SocketException("Cannot read from empty socket" . PHP_EOL);
+        }
+
+        return $this->readChunk($length, $type);
+    }
+
+    /**
+     * @param int $type socket_read $type parameter
+     * @param int $chunkLength socket_read $length parameter
+     *
+     * @return string
+     * @throws SocketException
+     */
+    public function readAll($type = PHP_BINARY_READ, $chunkLength = 65384)
     {
         if ($this->debug) {
             echo __METHOD__ . PHP_EOL;
@@ -157,17 +180,8 @@ class Socket
         }
 
         $response = "";
-        while (($partial = socket_read($this->socket, 65384, $type))) {
-            if (false === $partial) {
-                $last_error = socket_last_error($this->socket);
-                $message = socket_strerror($last_error);
-                throw new SocketException("Error occur when read from stream: {$message}", $last_error);
-            }
+        while($partial = $this->readChunk($type, $chunkLength)) {
             $response .= $partial;
-        }
-
-        if ($this->debug) {
-            echo "< " . str_replace("\n", "\n< ", $response) . PHP_EOL . PHP_EOL;
         }
 
         return $response;
@@ -201,5 +215,25 @@ class Socket
     public function setDebug($debug = true)
     {
         $this->debug = (bool)$debug;
+    }
+
+    /**
+     * @param int $type socket_read $type parameter
+     * @param int $length socket_read $length parameter
+     *
+     * @return string
+     * @throws SocketException
+     *
+     * @internal
+     */
+    protected function readChunk($type, $length)
+    {
+        $partial = socket_read($this->socket, $length, $type);
+        if (false === $partial) {
+            $last_error = socket_last_error($this->socket);
+            $message = socket_strerror($last_error);
+            throw new SocketException("Error occur when read from stream: {$message}", $last_error);
+        }
+        return $partial;
     }
 }

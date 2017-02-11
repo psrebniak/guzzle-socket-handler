@@ -16,6 +16,7 @@ app.all('/*', (request, response) => {
     console.log();
 
     response.end('Hello World');
+    console.log('end');
 });
 
 

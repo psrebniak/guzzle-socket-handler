@@ -123,6 +123,7 @@ class UnixSocketHandler
             ->send();
 
         $response = $socket->readAll();
+        $socket->close();
 
         return $this->createResponse($response);
     }
@@ -178,6 +179,8 @@ class UnixSocketHandler
         if (!isset($this->socket)) {
             $this->socket = new Socket($this->domain, $this->type, $this->protocol);
         }
+        $this->socket->create();
+
         return $this->socket;
     }
 }

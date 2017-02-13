@@ -4,8 +4,10 @@ namespace UnixSocketHandler;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Stream;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class UnixSocketHandlerFactory
@@ -69,18 +71,29 @@ class UnixSocketHandlerFactory
             $allowedRedirects--;
             $response = $socket->handle($request, $options);
             if (in_array($response->getStatusCode(), [301, 302, 303])) {
-                $location = $response->getHeader('Location');
-                echo "Redirect to " . array_shift($location) . PHP_EOL;
-                $request = new Request('GET', array_shift($location));
+                $request = $this->createRedirect($request, $response, 'GET', $options);
+
             } elseif (in_array($response->getStatusCode(), [307, 308])) {
-                $location = $response->getHeader('Location');
-                echo "Redirect to " . array_shift($location) . PHP_EOL;
-                $request = $request->withRequestTarget(array_shift($location));
+                $request = $this->createRedirect($request, $response, $request->getMethod(), $options);
             } else {
                 break;
             }
         } while ($allowedRedirects >= 0);
 
         return new FulfilledPromise($response);
+    }
+
+    protected function createRedirect(RequestInterface $request, ResponseInterface $response, $method, $options)
+    {
+        if ($options[RequestOptions::ALLOW_REDIRECTS]['referer']) {
+            $request->withHeader('referer', $request->getRequestTarget());
+        }
+        if ($options[RequestOptions::ALLOW_REDIRECTS]['track_redirects']) {
+            $request->withAddedHeader('X-Guzzle-Redirect-History', $request->getRequestTarget());
+            $request->withAddedHeader('X-Guzzle-Redirect-Status-History', $response->getStatusCode());
+        }
+
+        $location = $response->getHeader('Location');
+        return $request->withMethod($method)->withRequestTarget(array_shift($location));
     }
 }

@@ -10,14 +10,39 @@ namespace UnixSocketHandler;
  */
 class Socket
 {
+    /**
+     * @var resource|null socket instance
+     */
     protected $socket = null;
-    protected $path = null;
 
-    protected $domain = null;
-    protected $type = null;
-    protected $protocol = null;
+    /**
+     * @var string socket path
+     */
+    protected $path;
 
+    /**
+     * @var int socket_create $domain parameter
+     */
+    protected $domain;
+
+    /**
+     * @var int socket_create $type parameter
+     */
+    protected $type;
+
+    /**
+     * @var int socket_create $type parameter
+     */
+    protected $protocol;
+
+    /**
+     * @var bool debug flat
+     */
     protected $debug = false;
+
+    /**
+     * @var string debug mode request string
+     */
     protected $debugString = "";
 
     /**
@@ -59,9 +84,11 @@ class Socket
         }
 
         if (!isset($this->socket)) {
-            $this->socket = socket_create($this->domain, $this->type, $this->protocol);
+            $this->socket = @socket_create($this->domain, $this->type, $this->protocol);
+            $last_error = socket_last_error($this->socket);
+            $error_msg = socket_strerror($last_error);
             if (!isset($this->socket)) {
-                throw new SocketException("Cannot create socket");
+                throw new SocketException("Cannot create socket. {$error_msg}", $last_error);
             }
         }
 
@@ -81,8 +108,10 @@ class Socket
             echo __METHOD__ . PHP_EOL;
         }
 
-        if (false === socket_connect($this->socket, $path)) {
-            throw new SocketException("Cannot connect socket to {$path}");
+        if (false === @socket_connect($this->socket, $path)) {
+            $last_error = socket_last_error($this->socket);
+            $error_msg = socket_strerror($last_error);
+            throw new SocketException("Cannot connect socket to {$path}. {$error_msg}", $last_error);
         }
 
         return $this;
@@ -90,23 +119,28 @@ class Socket
 
     /**
      * Write to socket
-     * @param string $payload
+     * @param string $message
      *
      * @return $this
      * @throws SocketException
      */
-    public function write($payload)
+    public function write($message)
     {
         if ($this->debug) {
-            $this->debugString .= $payload;
+            $this->debugString .= $message;
         }
 
         if (!isset($this->socket)) {
-            throw new SocketException("Cannot write to empty socket" . PHP_EOL);
+            throw new SocketException("Cannot write to empty socket.");
         }
 
-        if (false === socket_write($this->socket, $payload, strlen($payload))) {
-            throw new SocketException("Error occur when write to stream" . PHP_EOL);
+        if (false === @socket_write($this->socket, $message, strlen($message))) {
+            if ($this->debug) {
+                echo "Error occur when write to stream: " . PHP_EOL . "--BEGIN--" . PHP_EOL . $this->debugString . PHP_EOL . "--END--" . PHP_EOL;
+            }
+            $last_error = socket_last_error($this->socket);
+            $error_msg = socket_strerror($last_error);
+            throw new SocketException("Error occur when write to stream. {$error_msg}", $last_error);
         }
 
         return $this;
@@ -114,26 +148,28 @@ class Socket
 
     /**
      * Send $payload to stream with flag set
-     * @param string $payload
+     * @param string $message
      * @param int $flag socket_send $flag parameter
      *
      * @return $this
      * @throws SocketException
      */
-    public function send($payload = "", $flag = MSG_EOR)
+    public function send($message = "", $flag = MSG_EOR)
     {
         if ($this->debug) {
-            $this->debugString .= $payload;
+            $this->debugString .= $message;
             echo "> " . str_replace("\n", "\n> ", $this->debugString) . PHP_EOL . PHP_EOL;
             $this->debugString = "";
         }
 
         if (!isset($this->socket)) {
-            throw new SocketException("Cannot write to empty socket" . PHP_EOL);
+            throw new SocketException("Cannot send data to empty socket.");
         }
 
-        if (false === socket_send($this->socket, $payload, strlen($payload), $flag)) {
-            throw new SocketException("Error occur when send to stream" . PHP_EOL);
+        if (false === @socket_send($this->socket, $message, strlen($message), $flag)) {
+            $last_error = socket_last_error($this->socket);
+            $error_msg = socket_strerror($last_error);
+            throw new SocketException("Error occur when write to stream. {$error_msg}", $last_error);
         }
 
         return $this;
@@ -154,7 +190,7 @@ class Socket
             echo __METHOD__ . PHP_EOL;
         }
         if (!isset($this->socket)) {
-            throw new SocketException("Cannot read from empty socket" . PHP_EOL);
+            throw new SocketException("Cannot read from empty socket");
         }
 
         return $this->readChunk($length, $type);
@@ -173,11 +209,11 @@ class Socket
             echo __METHOD__ . PHP_EOL;
         }
         if (!isset($this->socket)) {
-            throw new SocketException("Cannot read from empty socket" . PHP_EOL);
+            throw new SocketException("Cannot read from empty socket");
         }
 
         $response = "";
-        while($partial = $this->readChunk($type, $chunkLength)) {
+        while ($partial = $this->readChunk($type, $chunkLength)) {
             $response .= $partial;
         }
 
@@ -223,11 +259,11 @@ class Socket
      */
     protected function readChunk($type, $length)
     {
-        $partial = socket_read($this->socket, $length, $type);
+        $partial = @socket_read($this->socket, $length, $type);
         if (false === $partial) {
             $last_error = socket_last_error($this->socket);
-            $message = socket_strerror($last_error);
-            throw new SocketException("Error occur when read from stream: {$message}", $last_error);
+            $error_msg = socket_strerror($last_error);
+            throw new SocketException("Error occur when read from stream: {$error_msg}", $last_error);
         }
         return $partial;
     }

@@ -44,6 +44,11 @@ class UnixSocketHandler
     protected $protocol;
 
     /**
+     * @var null|Socket
+     */
+    protected $socket = null;
+
+    /**
      * @param string $path valid socket path with unix:// protocol
      * @param int $domain socket_create $domain parameter
      * @param int $type socket_create
@@ -57,51 +62,67 @@ class UnixSocketHandler
         $this->protocol = $protocol;
     }
 
+    public function __destruct()
+    {
+        if (isset($this->socket)) {
+            $this->socket->close();
+        }
+    }
+
     /**
      * Handle connection
      *
      * @param RequestInterface $request
      * @param array $options
-     * @return \GuzzleHttp\Promise\FulfilledPromise
      *
+     * @return Response
      * @throws HttpResponseException
      * @throws SocketException
      */
     public function handle($request, $options)
     {
-        $socket = new Socket($this->domain, $this->type, $this->protocol);
+        $socket = $this->getSocket();
 
         if (isset($options[self::DEBUG]) && $options[self::DEBUG]) {
             $socket->setDebug();
         }
         $socket->connect($this->path);
 
-        $socket->write(
-            "{$request->getMethod()} {$request->getRequestTarget()} HTTP/{$request->getProtocolVersion()}" . self::EOL
-        );
+        $socket->write(sprintf(
+            "%s %s HTTP/%s" . self::EOL,
+            strtoupper($request->getMethod()),
+            $request->getRequestTarget(),
+            $request->getProtocolVersion()
+        ));
 
         $headers = $request->getHeaders();
-        // always force connection close header
-        $headers['Connection'] = ['close'];
+        $body = $request->getBody();
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
+
+        // set content-length if not set
+        if (!$request->hasHeader('Content-Length') &&
+            $body->getSize() > 0
+        ) {
+            $headers['Content-Length'] = [$body->getSize()];
+//            if (!$request->hasHeader('Connection')) {
+//                $headers['Connection'] = ['close'];
+//            }
+        }
 
         foreach ($headers as $key => $values) {
             $value = implode(', ', $values);
             $socket->write("{$key}: {$value}" . self::EOL);
         }
 
-        $contentLength = strlen($request->getBody());
-        if ($contentLength > 0) {
-            $socket->write("Content-Length: {$contentLength}" . self::EOL);
-        }
-
         $socket
             ->write(self::EOL)
-            ->write($request->getBody())
+            ->write($body->getContents())
             ->write(self::EOL)
             ->send();
 
         $response = $socket->readAll();
-        $socket->close();
 
         return $this->createResponse($response);
     }
@@ -109,13 +130,13 @@ class UnixSocketHandler
     /**
      * @param $data
      * @return Response
-     * @throws HttpResponseException
+     * @throws \HttpResponseException
      */
     protected function createResponse($data)
     {
-        $parts = explode(self::EOL.self::EOL, $data, 2);
+        $parts = explode(self::EOL . self::EOL, $data, 2);
         if (count($parts) !== 2) {
-            throw new HttpResponseException("Cannot create response from data");
+            throw new \HttpResponseException("Cannot create response from data");
         }
         list($headers, $body) = $parts;
         $headers = explode(self::EOL, $headers);
@@ -150,5 +171,13 @@ class UnixSocketHandler
             substr($startLine[0], 5),
             isset($startLine[2]) ? (string)$startLine[2] : null
         );
+    }
+
+    protected function getSocket()
+    {
+        if (!isset($this->socket)) {
+            $this->socket = new Socket($this->domain, $this->type, $this->protocol);
+        }
+        return $this->socket;
     }
 }

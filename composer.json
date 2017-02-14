@@ -1,18 +1,26 @@
 {
-    "name": "node-php-on-unix-socket/client",
-    "authors": [
-        {
-            "name": "Piotr Srebniak",
-            "email": "piotr.srebniak@gmail.com"
-        }
-    ],
-    "require": {
-        "clue/socket-raw": "~1.2",
-        "guzzlehttp/guzzle": "~6.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "UnixSocketHandler\\": "src/UnixSocketHandler/"
-        }
+  "name": "node-php-on-unix-socket/client",
+  "authors": [
+    {
+      "name": "Piotr Srebniak",
+      "email": "piotr.srebniak@gmail.com"
     }
+  ],
+  "require": {
+    "clue/socket-raw": "~1.2",
+    "guzzlehttp/guzzle": "~6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "UnixSocketHandler\\": "src/UnixSocketHandler/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "UnixSocketHandler\\Tests\\": "tests/Tests"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.0"
+  }
 }

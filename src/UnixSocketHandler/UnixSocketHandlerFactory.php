@@ -3,8 +3,6 @@
 namespace UnixSocketHandler;
 
 use GuzzleHttp\Promise\FulfilledPromise;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Stream;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;

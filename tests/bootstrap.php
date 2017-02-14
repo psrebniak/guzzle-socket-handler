@@ -1,4 +1,12 @@
 <?php
 
-require(__DIR__ . '/../vendor/autoload.php');
-require(__DIR__ . '/client.php');
+namespace UnixSocketHandler;
+
+/**
+ * @return \GuzzleHttp\Client
+ */
+function getClient() {
+    return new \GuzzleHttp\Client([
+        'handler' => new \UnixSocketHandler\UnixSocketHandlerFactory(__DIR__ . '/../socat.sock')
+    ]);
+}

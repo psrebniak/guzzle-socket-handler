@@ -17,7 +17,8 @@ stop-socket:
 	  | grep -v grep \
 	  | cut -f 1 -d " "\
 	) && [ -n "$$PID_SOCKET" ] && kill $$PID_SOCKET || true
+	@rm -f socat.sock
 
 test: start
-	vendor/bin/phpunit
+	vendor/bin/phpunit --bootstrap tests/bootstrap.php  tests/Tests/
 	$(MAKE) stop

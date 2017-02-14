@@ -106,9 +106,6 @@ class UnixSocketHandler
             $body->getSize() > 0
         ) {
             $headers['Content-Length'] = [$body->getSize()];
-//            if (!$request->hasHeader('Connection')) {
-//                $headers['Connection'] = ['close'];
-//            }
         }
 
         foreach ($headers as $key => $values) {

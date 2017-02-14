@@ -53,9 +53,8 @@ class UnixSocketHandlerFactory
         if (isset($options['delay'])) {
             usleep($options['delay'] * 1000);
         }
-
-        var_dump($options[RequestOptions::ALLOW_REDIRECTS]['max']);
-
+        // set full uri request target with all keys (protocol, host etc)
+        $request = $request->withRequestTarget((string)$request->getUri());
         $socket = new UnixSocketHandler(
             $this->path,
             $this->domain,
@@ -72,7 +71,6 @@ class UnixSocketHandlerFactory
             $response = $socket->handle($request, $options);
             if (in_array($response->getStatusCode(), [301, 302, 303])) {
                 $request = $this->createRedirect($request, $response, 'GET', $options);
-
             } elseif (in_array($response->getStatusCode(), [307, 308])) {
                 $request = $this->createRedirect($request, $response, $request->getMethod(), $options);
             } else {
@@ -89,8 +87,9 @@ class UnixSocketHandlerFactory
             $request->withHeader('referer', $request->getRequestTarget());
         }
         if ($options[RequestOptions::ALLOW_REDIRECTS]['track_redirects']) {
-            $request->withAddedHeader('X-Guzzle-Redirect-History', $request->getRequestTarget());
-            $request->withAddedHeader('X-Guzzle-Redirect-Status-History', $response->getStatusCode());
+            $request = $request
+                ->withAddedHeader('X-Guzzle-Redirect-History', $request->getRequestTarget())
+                ->withAddedHeader('X-Guzzle-Redirect-Status-History', $response->getStatusCode());
         }
 
         $location = $response->getHeader('Location');

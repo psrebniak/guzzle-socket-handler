@@ -31,14 +31,14 @@ $form_params = [
 
 $response = $guzzle
     ->get('https://limango.pl/?redirects=5', [
-        'debug' => true,
-//        'json' => $json,
+//        'debug' => true,
+        'json' => $json,
 //        'multipart' => $multipart,
 //        'form_params' => $form_params,
         RequestOptions::ALLOW_REDIRECTS => [
-            'max'             => 2,        // allow at most 10 redirects.
-            'strict'          => true,      // use "strict" RFC compliant redirects.
-            'referer'         => true,      // add a Referer header
+            'max'             => 5,
+            'strict'          => true,
+            'referer'         => true,
             'track_redirects' => true,
         ],
     ]);

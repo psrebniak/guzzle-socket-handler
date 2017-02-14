@@ -1,6 +1,5 @@
 <?php
 
-
 $post = (isset($_SERVER["CONTENT_TYPE"]) && "application/json" === $_SERVER["CONTENT_TYPE"])
     ? json_decode(file_get_contents('php://input'), true)
     : $_POST;

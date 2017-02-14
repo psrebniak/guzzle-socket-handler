@@ -4,7 +4,7 @@ use GuzzleHttp\RequestOptions;
 use UnixSocketHandler\UnixSocketHandlerFactory;
 
 $guzzle = new GuzzleHttp\Client([
-    'handler' => new UnixSocketHandlerFactory('/tmp/socat.sock'),
+    'handler' => new UnixSocketHandlerFactory(__DIR__ . '/../socat.sock'),
 ]);
 
 $json = ['redirects' => 2];

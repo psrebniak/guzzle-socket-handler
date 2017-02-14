@@ -1,6 +1,6 @@
 <?php
 
-namespace UnixSocketHandler\Tests;
+namespace psrebniak\UnixSocketHandler\Tests;
 
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +11,7 @@ class ConnectionTest extends TestCase
 
     public function setUp()
     {
-        $this->client = \UnixSocketHandler\getClient();
+        $this->client = \psrebniak\UnixSocketHandler\getClient();
     }
 
     public function testConnection() {

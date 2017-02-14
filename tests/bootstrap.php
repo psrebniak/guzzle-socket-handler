@@ -1,12 +1,12 @@
 <?php
 
-namespace UnixSocketHandler;
+namespace psrebniak\UnixSocketHandler;
 
 /**
  * @return \GuzzleHttp\Client
  */
 function getClient() {
     return new \GuzzleHttp\Client([
-        'handler' => new \UnixSocketHandler\UnixSocketHandlerFactory(__DIR__ . '/../socat.sock')
+        'handler' => new \psrebniak\UnixSocketHandler\UnixSocketHandlerFactory(__DIR__ . '/../socat.sock')
     ]);
 }

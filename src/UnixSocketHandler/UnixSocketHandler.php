@@ -1,6 +1,6 @@
 <?php
 
-namespace UnixSocketHandler;
+namespace psrebniak\UnixSocketHandler;
 
 use GuzzleHttp\Psr7\Response;
 use HttpResponseException;

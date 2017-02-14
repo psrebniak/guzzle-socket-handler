@@ -1,6 +1,6 @@
 <?php
 
-namespace UnixSocketHandler;
+namespace psrebniak\UnixSocketHandler;
 
 /**
  * Class SocketException

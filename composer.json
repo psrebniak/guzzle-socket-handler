@@ -1,9 +1,9 @@
 {
-  "name": "node-php-on-unix-socket/client",
+  "name": "psrebniak/UnixSocketHandler",
   "authors": [
     {
       "name": "Piotr Srebniak",
-      "email": "piotr.srebniak@gmail.com"
+      "email": "piotr.srebniak.packagist@gmail.com"
     }
   ],
   "require": {
@@ -12,12 +12,12 @@
   },
   "autoload": {
     "psr-4": {
-      "UnixSocketHandler\\": "src/UnixSocketHandler/"
+      "psrebniak\\UnixSocketHandler\\": "src/UnixSocketHandler/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "UnixSocketHandler\\Tests\\": "tests/Tests"
+      "psrebniak\\UnixSocketHandler\\Tests\\": "tests/Tests"
     }
   },
   "require-dev": {

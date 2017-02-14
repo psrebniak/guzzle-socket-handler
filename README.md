@@ -6,9 +6,11 @@ Unix socket handler for guzzle 6.
 ``` 
 \GuzzleHttp\Client([
     'handler' => new \psrebniak\UnixSocketHandler\UnixSocketHandlerFactory(
-        $path,
+        // path to unix socket
+        $path, 
+        // socket_create parameters
         $domain /* = AF_UNIX */, 
-        $type /* = SOCK_STREAM */, 
+        $type /* = SOCK_STREAM */,
         $protocol /* = SOL_SOCKET */
     )
 ]);

@@ -153,11 +153,10 @@ class SocketHandler
                 $headers['x-encoded-content-length']
                     = $headers[$normalizedKeys['content-length']];
 
+                unset($headers[$normalizedKeys['content-length']]);
                 $bodyLength = (int)strlen($body);
                 if ($bodyLength) {
                     $headers[$normalizedKeys['content-length']] = $bodyLength;
-                } else {
-                    unset($headers[$normalizedKeys['content-length']]);
                 }
             }
         }

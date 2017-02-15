@@ -69,11 +69,13 @@ class SocketHandlerFactory
             $response = $socket->handle($request, $options);
             if (in_array($response->getStatusCode(), [301, 302, 303])) {
                 $request = $this->createRedirect($request, $response, 'GET', $options);
+                continue;
             } elseif (in_array($response->getStatusCode(), [307, 308])) {
                 $request = $this->createRedirect($request, $response, $request->getMethod(), $options);
-            } else {
-                break;
+                continue;
             }
+            break;
+
         } while ($allowedRedirects >= 0);
 
         return new FulfilledPromise($response);

@@ -245,7 +245,7 @@ class Socket
      *
      * @param bool $debug
      */
-    public function setDebug($debug = true)
+    public function setDebug($debug)
     {
         $this->debug = (bool)$debug;
     }

@@ -1,4 +1,4 @@
-# Guzzle Socket Handler
+# Guzzle Socket Handler [![Build Status](https://travis-ci.org/psrebniak/guzzle-socket-handler.svg?branch=master)](https://travis-ci.org/psrebniak/guzzle-socket-handler) 
 
 Unix socket handler for guzzle 6. 
 

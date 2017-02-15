@@ -1,6 +1,8 @@
 start: stop
-	php -S localhost:8080 tests/server.php &
-	socat unix-listen:./socat.sock,reuseaddr,fork tcp-connect:127.0.0.1:8080 &
+	php -S localhost:8081 tests/server.php &
+	sleep 1
+	socat unix-listen:./socat.sock,reuseaddr,fork tcp-connect:127.0.0.1:8081 &
+	sleep 1
 
 stop: stop-server stop-socket
 

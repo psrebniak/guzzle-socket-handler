@@ -2,6 +2,10 @@
 
 Unix socket handler for guzzle 6. 
 
+## Installation
+
+`composer require psrebniak/guzzle-socket-handler`
+
 ## Usage: 
 ``` 
 \GuzzleHttp\Client([

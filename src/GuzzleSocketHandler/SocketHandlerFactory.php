@@ -1,6 +1,6 @@
 <?php
 
-namespace psrebniak\UnixSocketHandler;
+namespace psrebniak\GuzzleSocketHandler;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\RequestOptions;
@@ -8,9 +8,9 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Class UnixSocketHandlerFactory
+ * Class GuzzleSocketHandlerFactory
  */
-class UnixSocketHandlerFactory
+class SocketHandlerFactory
 {
     /**
      * @var string socket path
@@ -53,7 +53,7 @@ class UnixSocketHandlerFactory
         }
         // set full uri request target with all keys (protocol, host etc)
         $request = $request->withRequestTarget((string)$request->getUri());
-        $socket = new UnixSocketHandler(
+        $socket = new SocketHandler(
             $this->path,
             $this->domain,
             $this->type,

@@ -1,10 +1,10 @@
 <?php
 
-namespace psrebniak\UnixSocketHandler;
+namespace psrebniak\GuzzleSocketHandler;
 
 /**
  * Class Socket simple socket wrapper
- * @package UnixSocketHandler
+ * @package GuzzleSocketHandler
  *
  * @internal
  */

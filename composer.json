@@ -1,5 +1,5 @@
 {
-  "name": "psrebniak/UnixSocketHandler",
+  "name": "psrebniak/GuzzleSocketHandler",
   "authors": [
     {
       "name": "Piotr Srebniak",
@@ -12,12 +12,12 @@
   },
   "autoload": {
     "psr-4": {
-      "psrebniak\\UnixSocketHandler\\": "src/UnixSocketHandler/"
+      "psrebniak\\GuzzleSocketHandler\\": "src/GuzzleSocketHandler/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "psrebniak\\UnixSocketHandler\\Tests\\": "tests/Tests"
+      "psrebniak\\GuzzleSocketHandler\\Tests\\": "tests/Tests"
     }
   },
   "require-dev": {

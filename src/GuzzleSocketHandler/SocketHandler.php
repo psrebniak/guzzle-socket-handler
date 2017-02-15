@@ -1,17 +1,17 @@
 <?php
 
-namespace psrebniak\UnixSocketHandler;
+namespace psrebniak\GuzzleSocketHandler;
 
 use GuzzleHttp\Psr7\Response;
 use HttpResponseException;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * Class UnixSocketHandler
+ * Class GuzzleSocketHandler
  *
  * @internal
  */
-class UnixSocketHandler
+class SocketHandler
 {
     /**
      * https://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.2

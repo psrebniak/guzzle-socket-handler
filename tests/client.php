@@ -1,10 +1,10 @@
 <?php
 
 use GuzzleHttp\RequestOptions;
-use UnixSocketHandler\UnixSocketHandlerFactory;
+use \psrebniak\GuzzleSocketHandler\SocketHandlerFactory;
 
 $guzzle = new GuzzleHttp\Client([
-    'handler' => new UnixSocketHandlerFactory(__DIR__ . '/../socat.sock'),
+    'handler' => new SocketHandlerFactory(__DIR__ . '/../socat.sock'),
 ]);
 
 $json = ['redirects' => 2];
@@ -36,9 +36,9 @@ $response = $guzzle
 //        'multipart' => $multipart,
 //        'form_params' => $form_params,
         RequestOptions::ALLOW_REDIRECTS => [
-            'max'             => 5,
-            'strict'          => true,
-            'referer'         => true,
+            'max' => 5,
+            'strict' => true,
+            'referer' => true,
             'track_redirects' => true,
         ],
     ]);

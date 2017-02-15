@@ -1,6 +1,6 @@
 <?php
 
-namespace psrebniak\UnixSocketHandler\Tests;
+namespace psrebniak\GuzzleSocketHandler\Tests;
 
 use PHPUnit\Framework\TestCase;
 
@@ -11,10 +11,11 @@ class ConnectionTest extends TestCase
 
     public function setUp()
     {
-        $this->client = \psrebniak\UnixSocketHandler\getClient();
+        $this->client = \psrebniak\GuzzleSocketHandler\getClient();
     }
 
-    public function testConnection() {
+    public function testConnection()
+    {
         self::assertEquals(200, $this->client->get('/')->getStatusCode(), "Server is responding");
     }
 }

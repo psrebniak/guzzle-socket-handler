@@ -1,6 +1,6 @@
 <?php
 
-namespace psrebniak\UnixSocketHandler\Tests;
+namespace psrebniak\GuzzleSocketHandler\Tests;
 
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +11,7 @@ class JsonTest extends TestCase
 
     public function setUp()
     {
-        $this->client = \psrebniak\UnixSocketHandler\getClient();
+        $this->client = \psrebniak\GuzzleSocketHandler\getClient();
     }
 
     public function testJson()

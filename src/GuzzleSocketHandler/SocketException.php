@@ -1,10 +1,10 @@
 <?php
 
-namespace psrebniak\UnixSocketHandler;
+namespace psrebniak\GuzzleSocketHandler;
 
 /**
  * Class SocketException
- * @package UnixSocketHandler
+ * @package GuzzleSocketHandler
  */
 class SocketException extends \Exception
 {

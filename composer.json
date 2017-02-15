@@ -1,5 +1,9 @@
 {
   "name": "psrebniak/guzzle-socket-handler",
+  "type": "library",
+  "description": "Unix socket handler for guzzle 6",
+  "keywords": ["socket","guzzle"],
+  "homepage": "https://github.com/psrebniak/guzzle-socket-handler",
   "authors": [
     {
       "name": "Piotr Srebniak",

@@ -85,10 +85,10 @@ class Socket
 
         if (!isset($this->socket)) {
             $this->socket = @socket_create($this->domain, $this->type, $this->protocol);
-            $last_error = socket_last_error($this->socket);
-            $error_msg = socket_strerror($last_error);
+            $lastError = socket_last_error($this->socket);
+            $errorMessage = socket_strerror($lastError);
             if (!isset($this->socket)) {
-                throw new SocketException("Cannot create socket. {$error_msg}", $last_error);
+                throw new SocketException("Cannot create socket. {$errorMessage}", $lastError);
             }
         }
 
@@ -109,9 +109,9 @@ class Socket
         }
 
         if (false === @socket_connect($this->socket, $path)) {
-            $last_error = socket_last_error($this->socket);
-            $error_msg = socket_strerror($last_error);
-            throw new SocketException("Cannot connect socket to {$path}. {$error_msg}", $last_error);
+            $lastError = socket_last_error($this->socket);
+            $errorMessage = socket_strerror($lastError);
+            throw new SocketException("Cannot connect socket to {$path}. {$errorMessage}", $lastError);
         }
 
         return $this;
@@ -138,9 +138,9 @@ class Socket
             if ($this->debug) {
                 echo "Error occur when write to stream: " . PHP_EOL . "--BEGIN--" . PHP_EOL . $this->debugString . PHP_EOL . "--END--" . PHP_EOL;
             }
-            $last_error = socket_last_error($this->socket);
-            $error_msg = socket_strerror($last_error);
-            throw new SocketException("Error occur when write to stream. {$error_msg}", $last_error);
+            $lastError = socket_last_error($this->socket);
+            $errorMessage = socket_strerror($lastError);
+            throw new SocketException("Error occur when write to stream. {$errorMessage}", $lastError);
         }
 
         return $this;
@@ -167,9 +167,9 @@ class Socket
         }
 
         if (false === @socket_send($this->socket, $message, strlen($message), $flag)) {
-            $last_error = socket_last_error($this->socket);
-            $error_msg = socket_strerror($last_error);
-            throw new SocketException("Error occur when write to stream. {$error_msg}", $last_error);
+            $lastError = socket_last_error($this->socket);
+            $errorMessage = socket_strerror($lastError);
+            throw new SocketException("Error occur when write to stream. {$errorMessage}", $lastError);
         }
 
         return $this;
@@ -261,9 +261,9 @@ class Socket
     {
         $partial = @socket_read($this->socket, $length, $type);
         if (false === $partial) {
-            $last_error = socket_last_error($this->socket);
-            $error_msg = socket_strerror($last_error);
-            throw new SocketException("Error occur when read from stream: {$error_msg}", $last_error);
+            $lastError = socket_last_error($this->socket);
+            $errorMessage = socket_strerror($lastError);
+            throw new SocketException("Error occur when read from stream: {$errorMessage}", $lastError);
         }
         return $partial;
     }

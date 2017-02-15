@@ -1,4 +1,4 @@
-# Guzzle Socket Handler [![Build Status](https://travis-ci.org/psrebniak/guzzle-socket-handler.svg?branch=master)](https://travis-ci.org/psrebniak/guzzle-socket-handler) 
+# Guzzle Socket Handler [![Build Status](https://travis-ci.org/psrebniak/guzzle-socket-handler.svg?branch=master)](https://travis-ci.org/psrebniak/guzzle-socket-handler)  [![Code Climate](https://codeclimate.com/github/psrebniak/guzzle-socket-handler/badges/gpa.svg)](https://codeclimate.com/github/psrebniak/guzzle-socket-handler)
 
 Unix socket handler for guzzle 6. 
 

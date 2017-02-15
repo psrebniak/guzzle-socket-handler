@@ -1,7 +1,9 @@
 sudo: true
 services: docker
-os: ubuntu
-dist: 16
+
+env:
+  matrix:
+    - OS=ubuntu DIST=16 PACK=deb
 
 branches:
   only:

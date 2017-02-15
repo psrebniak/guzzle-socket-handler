@@ -38,7 +38,7 @@ class SocketHandlerFactory
      * @param int $type socket_create
      * @param int $protocol
      */
-    public function __construct(string $path, $domain = AF_UNIX, $type = SOCK_STREAM, $protocol = SOL_SOCKET)
+    public function __construct($path, $domain = AF_UNIX, $type = SOCK_STREAM, $protocol = SOL_SOCKET)
     {
         $this->path = $path;
         $this->domain = $domain;

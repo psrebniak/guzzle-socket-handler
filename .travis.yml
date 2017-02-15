@@ -18,7 +18,6 @@ addons:
   apt:
     packages:
       - socat
-      - composer
 
 before_script:
   - composer install

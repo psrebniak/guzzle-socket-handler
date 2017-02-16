@@ -10,6 +10,10 @@ if (isset($_GET['redirects']) && $_GET['redirects'] > 0) {
     die;
 }
 
+if (isset($_GET['sleep'])) {
+    sleep((int)$_GET['sleep']);
+}
+
 header('Content-Type: application/json');
 echo json_encode([
     'method' => $_SERVER['REQUEST_METHOD'],

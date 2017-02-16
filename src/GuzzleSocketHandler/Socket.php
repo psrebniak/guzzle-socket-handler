@@ -18,22 +18,22 @@ class Socket
     /**
      * @var string socket path
      */
-    protected $path;
+    protected $path = null;
 
     /**
      * @var int socket_create $domain parameter
      */
-    protected $domain;
+    protected $domain = AF_UNIX;
 
     /**
      * @var int socket_create $type parameter
      */
-    protected $type;
+    protected $type = SOCK_STREAM;
 
     /**
      * @var int socket_create $type parameter
      */
-    protected $protocol;
+    protected $protocol = SOL_SOCKET;
 
     /**
      * @var bool debug flat
@@ -41,25 +41,20 @@ class Socket
     protected $debug = false;
 
     /**
-     * @var string debug mode request string
+     * @var float|null
      */
-    protected $debugString = "";
+    protected $timeout = null;
 
     /**
      * Socket constructor.
-     * @param int $domain socket_create $domain parameter
-     * @param int $type socket_create $type parameter
-     * @param int $protocol socket_create $protocol parameter
      *
-     * @throws SocketException
+     * @param $path
+     * @param array $options associative array with keys from SocketOptions class
      */
-    public function __construct($domain = AF_UNIX, $type = SOCK_STREAM, $protocol = SOL_SOCKET)
+    public function __construct($path, $options)
     {
-        $this->domain = $domain;
-        $this->type = $type;
-        $this->protocol = $protocol;
-
-        $this->create();
+        $this->path = $path;
+        $this->applyOptions($options);
     }
 
     /**
@@ -72,7 +67,6 @@ class Socket
 
     /**
      * Create new socket if not exist
-     * Socket is created in constructor
      *
      * @return $this
      * @throws SocketException;
@@ -83,12 +77,28 @@ class Socket
             echo __METHOD__ . PHP_EOL;
         }
 
+        // if socket is already created - do nothing
+        if (isset($this->socket)) {
+            return $this;
+        }
+
+        $this->socket = @socket_create($this->domain, $this->type, $this->protocol);
+        $lastError = socket_last_error($this->socket);
+        $errorMessage = socket_strerror($lastError);
+        socket_clear_error($this->socket);
         if (!isset($this->socket)) {
-            $this->socket = @socket_create($this->domain, $this->type, $this->protocol);
-            $lastError = socket_last_error($this->socket);
-            $errorMessage = socket_strerror($lastError);
-            if (!isset($this->socket)) {
-                throw new SocketException("Cannot create socket. {$errorMessage}", $lastError);
+            throw new SocketException("Cannot create socket. {$errorMessage}", $lastError);
+        }
+
+        if ($this->timeout > 0) {
+            $success = true;
+            $s = (int)$this->timeout;
+            $ms = (int)(($this->timeout - $s) * 1000);
+            $success &= socket_set_option($this->socket, $this->protocol, SO_RCVTIMEO, ['sec' => $s, 'usec' => $ms]);
+            $success &= socket_set_option($this->socket, $this->protocol, SO_SNDTIMEO, ['sec' => $s, 'usec' => $ms]);
+
+            if (!$success) {
+                trigger_error('Cannot set socket timeout', E_USER_WARNING);
             }
         }
 
@@ -96,22 +106,22 @@ class Socket
     }
 
     /**
-     * Connect to given socket
-     * @param string $path socket path
+     * Connect to socket
      *
      * @return $this
      * @throws SocketException
      */
-    public function connect($path)
+    public function connect()
     {
         if ($this->debug) {
             echo __METHOD__ . PHP_EOL;
         }
 
-        if (false === @socket_connect($this->socket, $path)) {
+        if (false === @socket_connect($this->socket, $this->path)) {
             $lastError = socket_last_error($this->socket);
             $errorMessage = socket_strerror($lastError);
-            throw new SocketException("Cannot connect socket to {$path}. {$errorMessage}", $lastError);
+            socket_clear_error($this->socket);
+            throw new SocketException("Cannot connect socket to {$this->path}. {$errorMessage}", $lastError);
         }
 
         return $this;
@@ -127,7 +137,7 @@ class Socket
     public function write($message)
     {
         if ($this->debug) {
-            $this->debugString .= $message;
+            echo __METHOD__ . "[DEBUG]" . PHP_EOL . $message . PHP_EOL . "[/DEBUG]" . PHP_EOL;
         }
 
         if (!isset($this->socket)) {
@@ -135,11 +145,9 @@ class Socket
         }
 
         if (false === @socket_write($this->socket, $message, strlen($message))) {
-            if ($this->debug) {
-                echo "Error occur when write to stream: " . PHP_EOL . "--BEGIN--" . PHP_EOL . $this->debugString . PHP_EOL . "--END--" . PHP_EOL;
-            }
             $lastError = socket_last_error($this->socket);
             $errorMessage = socket_strerror($lastError);
+            socket_clear_error($this->socket);
             throw new SocketException("Error occur when write to stream. {$errorMessage}", $lastError);
         }
 
@@ -147,7 +155,7 @@ class Socket
     }
 
     /**
-     * Send $payload to stream with flag set
+     * Send $message to stream with flag set
      * @param string $message
      * @param int $flag socket_send $flag parameter
      *
@@ -157,9 +165,7 @@ class Socket
     public function send($message = "", $flag = MSG_EOR)
     {
         if ($this->debug) {
-            $this->debugString .= $message;
-            echo "> " . str_replace("\n", "\n> ", $this->debugString) . PHP_EOL . PHP_EOL;
-            $this->debugString = "";
+            echo __METHOD__ . "[DEBUG]" . PHP_EOL . $message . PHP_EOL . "[/DEBUG]" . PHP_EOL;
         }
 
         if (!isset($this->socket)) {
@@ -169,6 +175,7 @@ class Socket
         if (false === @socket_send($this->socket, $message, strlen($message), $flag)) {
             $lastError = socket_last_error($this->socket);
             $errorMessage = socket_strerror($lastError);
+            socket_clear_error($this->socket);
             throw new SocketException("Error occur when write to stream. {$errorMessage}", $lastError);
         }
 
@@ -240,17 +247,6 @@ class Socket
     }
 
     /**
-     * Set debugging flag
-     * Debugger echoes methods calls
-     *
-     * @param bool $debug
-     */
-    public function setDebug($debug)
-    {
-        $this->debug = (bool)$debug;
-    }
-
-    /**
      * @param int $type socket_read $type parameter
      * @param int $length socket_read $length parameter
      *
@@ -263,8 +259,30 @@ class Socket
         if (false === $partial) {
             $lastError = socket_last_error($this->socket);
             $errorMessage = socket_strerror($lastError);
+            socket_clear_error($this->socket);
             throw new SocketException("Error occur when read from stream: {$errorMessage}", $lastError);
         }
         return $partial;
+    }
+
+    protected function applyOptions($options)
+    {
+        if (isset($options[SocketOptions::SOCKET_DOMAIN])) {
+            $this->domain = (int)$options[SocketOptions::SOCKET_DOMAIN];
+        }
+        if (isset($options[SocketOptions::SOCKET_PROTOCOL])) {
+            $this->protocol = (int)$options[SocketOptions::SOCKET_PROTOCOL];
+        }
+        if (isset($options[SocketOptions::SOCKET_TYPE])) {
+            $this->type = (int)$options[SocketOptions::SOCKET_TYPE];
+        }
+        if (isset($options[SocketOptions::SOCKET_TIMEOUT])) {
+            $this->timeout = (float)$options[SocketOptions::SOCKET_TIMEOUT];
+        }
+        if (isset($options[SocketOptions::SOCKET_DEBUG])) {
+            $this->debug = (bool)$options[SocketOptions::SOCKET_DEBUG];
+        }
+
+        return $this;
     }
 }

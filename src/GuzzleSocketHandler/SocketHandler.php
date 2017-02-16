@@ -19,47 +19,17 @@ class SocketHandler
     const EOL = "\r\n";
 
     /**
-     * guzzle debug flag
-     */
-    const DEBUG = 'debug';
-
-    /**
-     * @var string $path socket path
-     */
-    protected $path;
-
-    /**
-     * @var int $domain socket_create $domain parameter
-     */
-    protected $domain;
-
-    /**
-     * @var int socket_create $type parameter
-     */
-    protected $type;
-
-    /**
-     * @var int socket_create $protocol parameter
-     */
-    protected $protocol;
-
-    /**
      * @var null|Socket
      */
     protected $socket = null;
 
     /**
      * @param string $path valid socket path with unix:// protocol
-     * @param int $domain socket_create $domain parameter
-     * @param int $type socket_create
-     * @param int $protocol
+     * @param $options
      */
-    public function __construct($path, $domain = AF_UNIX, $type = SOCK_STREAM, $protocol = SOL_SOCKET)
+    public function __construct($path, $options)
     {
-        $this->path = $path;
-        $this->domain = $domain;
-        $this->type = $type;
-        $this->protocol = $protocol;
+        $this->socket = new Socket($path, $options);
     }
 
     public function __destruct()
@@ -73,20 +43,17 @@ class SocketHandler
      * Handle connection
      *
      * @param RequestInterface $request
-     * @param array $options
      *
      * @return Response
      * @throws HttpResponseException
      * @throws SocketException
      */
-    public function handle($request, $options)
+    public function handle($request)
     {
-        $socket = $this->getSocket();
-
-        if (isset($options[self::DEBUG]) && $options[self::DEBUG]) {
-            $socket->setDebug();
-        }
-        $socket->connect($this->path);
+        $socket = $this
+            ->socket
+            ->create()
+            ->connect();
 
         $socket->write(sprintf(
             "%s %s HTTP/%s" . self::EOL,
@@ -102,9 +69,7 @@ class SocketHandler
         }
 
         // set content-length if not set
-        if (!$request->hasHeader('Content-Length') &&
-            $body->getSize() > 0
-        ) {
+        if (!$request->hasHeader('Content-Length') && $body->getSize() > 0) {
             $headers['Content-Length'] = [$body->getSize()];
         }
 
@@ -168,15 +133,5 @@ class SocketHandler
             substr($startLine[0], 5),
             isset($startLine[2]) ? (string)$startLine[2] : null
         );
-    }
-
-    protected function getSocket()
-    {
-        if (!isset($this->socket)) {
-            $this->socket = new Socket($this->domain, $this->type, $this->protocol);
-        }
-        $this->socket->create();
-
-        return $this->socket;
     }
 }

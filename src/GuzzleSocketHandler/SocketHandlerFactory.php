@@ -34,16 +34,10 @@ class SocketHandlerFactory
 
     /**
      * @param string $path valid socket path
-     * @param int $domain socket_create $domain parameter
-     * @param int $type socket_create
-     * @param int $protocol
      */
-    public function __construct($path, $domain = AF_UNIX, $type = SOCK_STREAM, $protocol = SOL_SOCKET)
+    public function __construct($path)
     {
         $this->path = $path;
-        $this->domain = $domain;
-        $this->type = $type;
-        $this->protocol = $protocol;
     }
 
     public function __invoke(RequestInterface $request, array $options)
@@ -55,10 +49,9 @@ class SocketHandlerFactory
         $request = $request->withRequestTarget((string)$request->getUri());
         $socket = new SocketHandler(
             $this->path,
-            $this->domain,
-            $this->type,
-            $this->protocol
+            $options
         );
+
         $allowedRedirects = 0;
         if (isset($options[RequestOptions::ALLOW_REDIRECTS]['max'])) {
             $allowedRedirects = $options[RequestOptions::ALLOW_REDIRECTS]['max'];
@@ -66,7 +59,7 @@ class SocketHandlerFactory
 
         do {
             $allowedRedirects--;
-            $response = $socket->handle($request, $options);
+            $response = $socket->handle($request);
             if (in_array($response->getStatusCode(), [301, 302, 303])) {
                 $request = $this->createRedirect($request, $response, 'GET', $options);
                 continue;

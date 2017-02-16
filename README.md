@@ -26,9 +26,9 @@ Unix socket handler for guzzle 6.
 * sending form params (`$options[RequestOptions::FORM_PARAMS]` key)
 * sending multipart (`$options[RequestOptions::multipart]` key)
 * tracking redirects (`$options[RequestOptions::ALLOW_REDIRECTS]` key)
+* timeout (`$options[RequestOptions::CONNECT_TIMEOUT]` key)
 
 ## Todo
 
 * 100-Continue Header
 * authentication
-* tests

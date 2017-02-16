@@ -21,8 +21,8 @@ Unix socket handler for guzzle 6.
 * `SOCKET_DOMAIN` - socket_create $domain parameter
 * `SOCKET_PROTOCOL` - socket_create $protocol parameter
 * `SOCKET_TYPE` - socket_create $type parameter
-* `SOCKET_TIMEOUT` - alias of RequestOptions::CONNECT_TIMEOUT
-* `SOCKET_DEBUG` - alias of RequestOptions::DEBUG
+* `SOCKET_TIMEOUT` - alias of `RequestOptions::CONNECT_TIMEOUT`
+* `SOCKET_DEBUG` - alias of `RequestOptions::DEBUG`
 
 ## Done:
 

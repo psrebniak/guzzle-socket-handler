@@ -10,15 +10,19 @@ Unix socket handler for guzzle 6.
 ``` 
 \GuzzleHttp\Client([
     'handler' => new \psrebniak\GuzzleSocketHandler\SocketHandlerFactory(
-        // path to unix socket
-        $path, 
-        // socket_create parameters
-        $domain /* = AF_UNIX */, 
-        $type /* = SOCK_STREAM */,
-        $protocol /* = SOL_SOCKET */
+        $path
     )
-]);
+]); 
+
 ```
+
+## Request options (from `\psrebniak\GuzzleSocketHandler\SocketOptions`)
+
+* `SOCKET_DOMAIN` - socket_create $domain parameter
+* `SOCKET_PROTOCOL` - socket_create $protocol parameter
+* `SOCKET_TYPE` - socket_create $type parameter
+* `SOCKET_TIMEOUT` - alias of RequestOptions::CONNECT_TIMEOUT
+* `SOCKET_DEBUG` - alias of RequestOptions::DEBUG
 
 ## Done:
 

@@ -15,6 +15,10 @@ Unix socket handler for guzzle 6.
 \GuzzleHttp\Client([
     'handler' => new \psrebniak\GuzzleSocketHandler\SocketHandlerFactory(
         $path
+        [, $domain = AF_UNIX 
+        [, $type = SOCK_STREAM 
+        [, $protocol = SOL_SOCKET
+        ]]]
     )
 ]); 
 

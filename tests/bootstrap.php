@@ -8,6 +8,8 @@ namespace psrebniak\GuzzleSocketHandler;
 function getClient()
 {
     return new \GuzzleHttp\Client([
-        'handler' => new \psrebniak\GuzzleSocketHandler\SocketHandlerFactory(__DIR__ . '/../socat.sock')
+        'handler' => new \psrebniak\GuzzleSocketHandler\SocketHandlerFactory(
+            __DIR__ . '/../socat.sock'
+        )
     ]);
 }

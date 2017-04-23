@@ -8,5 +8,4 @@ namespace psrebniak\GuzzleSocketHandler;
  */
 class SocketException extends \Exception
 {
-
 }

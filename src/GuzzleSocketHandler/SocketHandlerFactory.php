@@ -34,10 +34,16 @@ class SocketHandlerFactory
 
     /**
      * @param string $path valid socket path
+     * @param int $domain
+     * @param int $type
+     * @param int $protocol
      */
-    public function __construct($path)
+    public function __construct($path, $domain = AF_UNIX, $type = SOCK_STREAM, $protocol = SOL_SOCKET)
     {
         $this->path = $path;
+        $this->domain = $domain;
+        $this->type = $type;
+        $this->protocol = $protocol;
     }
 
     public function __invoke(RequestInterface $request, array $options)
@@ -45,11 +51,15 @@ class SocketHandlerFactory
         if (isset($options['delay'])) {
             usleep($options['delay'] * 1000);
         }
+
         // set full uri request target with all keys (protocol, host etc)
         $request = $request->withRequestTarget((string)$request->getUri());
         $socket = new SocketHandler(
             $this->path,
-            $options
+            $options,
+            $this->domain,
+            $this->type,
+            $this->protocol
         );
 
         $allowedRedirects = 0;

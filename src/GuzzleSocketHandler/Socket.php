@@ -50,10 +50,17 @@ class Socket
      *
      * @param $path
      * @param array $options associative array with keys from SocketOptions class
+     * @param int $domain
+     * @param int $type
+     * @param int $protocol
      */
-    public function __construct($path, $options)
+    public function __construct($path, array $options, $domain = AF_UNIX, $type = SOCK_STREAM, $protocol = SOL_SOCKET)
     {
         $this->path = $path;
+        $this->domain = $domain;
+        $this->type = $type;
+        $this->protocol = $protocol;
+
         $this->applyOptions($options);
     }
 
@@ -267,15 +274,6 @@ class Socket
 
     protected function applyOptions($options)
     {
-        if (isset($options[SocketOptions::SOCKET_DOMAIN])) {
-            $this->domain = (int)$options[SocketOptions::SOCKET_DOMAIN];
-        }
-        if (isset($options[SocketOptions::SOCKET_PROTOCOL])) {
-            $this->protocol = (int)$options[SocketOptions::SOCKET_PROTOCOL];
-        }
-        if (isset($options[SocketOptions::SOCKET_TYPE])) {
-            $this->type = (int)$options[SocketOptions::SOCKET_TYPE];
-        }
         if (isset($options[SocketOptions::SOCKET_TIMEOUT])) {
             $this->timeout = (float)$options[SocketOptions::SOCKET_TIMEOUT];
         }

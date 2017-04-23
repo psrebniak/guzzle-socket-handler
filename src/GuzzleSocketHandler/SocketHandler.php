@@ -2,8 +2,8 @@
 
 namespace psrebniak\GuzzleSocketHandler;
 
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Response;
-use HttpResponseException;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -26,10 +26,13 @@ class SocketHandler
     /**
      * @param string $path valid socket path with unix:// protocol
      * @param $options
+     * @param int $domain
+     * @param int $type
+     * @param int $protocol
      */
-    public function __construct($path, $options)
+    public function __construct($path, $options, $domain = AF_UNIX, $type = SOCK_STREAM, $protocol = SOL_SOCKET)
     {
-        $this->socket = new Socket($path, $options);
+        $this->socket = new Socket($path, $options, $domain, $type, $protocol);
     }
 
     public function __destruct()
@@ -45,7 +48,7 @@ class SocketHandler
      * @param RequestInterface $request
      *
      * @return Response
-     * @throws HttpResponseException
+     * @throws BadResponseException
      * @throws SocketException
      */
     public function handle($request)
@@ -54,6 +57,8 @@ class SocketHandler
             ->socket
             ->create()
             ->connect();
+
+
 
         $socket->write(sprintf(
             "%s %s HTTP/%s" . self::EOL,
@@ -87,19 +92,19 @@ class SocketHandler
         $response = $socket->readAll();
         $socket->close();
 
-        return $this->createResponse($response);
+        return $this->createResponse($response, $request);
     }
 
     /**
      * @param $data
      * @return Response
-     * @throws \HttpResponseException
+     * @throws BadResponseException
      */
-    protected function createResponse($data)
+    protected function createResponse($data, $request)
     {
         $parts = explode(self::EOL . self::EOL, $data, 2);
         if (count($parts) !== 2) {
-            throw new \HttpResponseException("Cannot create response from data");
+            throw new BadResponseException("Cannot create response from data", $request);
         }
         list($headers, $body) = $parts;
         $headers = explode(self::EOL, $headers);

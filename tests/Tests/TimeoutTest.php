@@ -2,7 +2,6 @@
 
 namespace psrebniak\GuzzleSocketHandler\Tests;
 
-
 use GuzzleHttp\RequestOptions;
 use PHPUnit\Framework\TestCase;
 use psrebniak\GuzzleSocketHandler\SocketException;
@@ -20,7 +19,7 @@ class TimeoutTest extends TestCase
     public function testTimeout()
     {
         try {
-            $this->client->get('/?sleep=5', [
+            $this->client->get('/?method=sleep&value=5', [
                 RequestOptions::CONNECT_TIMEOUT => 1
             ]);
             self::fail("Request should cause timeout");
